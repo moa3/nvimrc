@@ -44,24 +44,33 @@ local lsp_flags = {
 
 local lspconfig = require'lspconfig'
 
--- Notably _not_ including `compile_commands.json`, as we want the entire project
-local root_pattern = lspconfig.util.root_pattern('.git')
-
--- docker run --rm -it -v /home/moa3/dev/praditus/otus:/otus dockeredlsp/clojure-lsp
 lspconfig.clojure_lsp.setup{
   before_init = function(params)
     params.processId = vim.NIL
   end,
   on_attach = on_attach,
   flags = lsp_flags,
-  cmd = {
-    'docker-compose',
-    'exec',
-    '-i',
-    'otus',
-    'clojure-lsp'
-  },
+  -- Try and launch the lsp server from a .lsp_runner executable file in the
+  -- root dir of the project. Useful if the LSP server lives in a container.
+  -- Exemple .lsp_runner file:
+  --
+  -- #!/usr/bin/env bash
+
+  -- exec docker-compose exec -i <my_clj_container> clojure-lsp "$@"
+
+  on_new_config=function (new_config, new_root_dir)
+    local bin = lspconfig.util.path.join(new_root_dir, '.lsp_runner')
+    if lspconfig.util.path.is_file(bin) then
+      table.insert(new_config.cmd, bin)
+    else
+      require('vim.lsp.log').warn(string.format(
+      '%s file was not found in root dir. Using default clojure-lsp bin if available',
+      bin))
+      table.insert(new_config.cmd, 'clojure-lsp')
+    end
+  end,
+  cmd = {},
   filetypes = { "clojure", "edn" },
-  root_dir = require'lspconfig/util'.root_pattern("project.clj", "deps.edn", "build.boot", "shadow-cljs.edn", ".git")
+  root_dir = lspconfig.util.root_pattern("project.clj", "deps.edn", "build.boot", "shadow-cljs.edn", ".git")
 }
 
