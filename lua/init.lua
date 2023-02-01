@@ -42,54 +42,26 @@ local lsp_flags = {
   debounce_text_changes = 150,
 }
 
-require'lspconfig'.clojure_lsp.setup{
+local lspconfig = require'lspconfig'
+
+-- Notably _not_ including `compile_commands.json`, as we want the entire project
+local root_pattern = lspconfig.util.root_pattern('.git')
+
+-- docker run --rm -it -v /home/moa3/dev/praditus/otus:/otus dockeredlsp/clojure-lsp
+lspconfig.clojure_lsp.setup{
+  before_init = function(params)
+    params.processId = vim.NIL
+  end,
   on_attach = on_attach,
   flags = lsp_flags,
-  cmd = { "clojure-lsp" },
-  -- cmd = { "cd /home/moa3/praditus/otus && docker-compose exec -i otus clojure-lsp" },
+  cmd = {
+    'docker-compose',
+    'exec',
+    '-i',
+    'otus',
+    'clojure-lsp'
+  },
   filetypes = { "clojure", "edn" },
   root_dir = require'lspconfig/util'.root_pattern("project.clj", "deps.edn", "build.boot", "shadow-cljs.edn", ".git")
 }
-
--- local clojure_lsp_cmd = function (runtime, workdir, image, network, docker_volume)
---   local mnt_volume
---   if docker_volume ~= nil then
---     mnt_volume ="--volume="..docker_volume..":"..workdir..":z"
---   else
---     mnt_volume = "--volume="..workdir..":"..workdir..":z"
---   end
-
---   return {
---     runtime,
---     "exec",
---     "-it",
---     image,
---     "clojure-lsp"
---   }
-
--- end
-
-
-
--- require'lspconfig'.clojure_lsp.setup{
---   on_attach = on_attach,
---   -- capabilities = capabilities,
---   cmd = require'lspcontainers'.command('clojure-lsp', {
---     image = "otus",
---     container_runtime = "docker-compose",
---     cmd_builder = clojure_lsp_cmd,
-
---     -- cmd = function (runtime, volume, image)
---     --   return {
---     --     "docker-compose",
---     --     "exec",
---     --     "-i",
---     --     "otus",
---     --   }
---     -- end,
---   }),
---   -- root_dir = require'lspconfig/util'.root_pattern(".git", vim.fn.getcwd()),
--- }
-
--- LSP config end
 
