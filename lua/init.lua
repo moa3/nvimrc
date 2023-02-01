@@ -63,12 +63,12 @@ lspconfig.clojure_lsp.setup{
   on_new_config=function (new_config, new_root_dir)
     local bin = lspconfig.util.path.join(new_root_dir, '.lsp_runner')
     if lspconfig.util.path.is_file(bin) then
-      table.insert(new_config.cmd, bin)
+      new_config.cmd = { bin }
     else
       require('vim.lsp.log').warn(string.format(
       '%s file was not found in root dir. Using default clojure-lsp bin if available',
       bin))
-      table.insert(new_config.cmd, 'clojure-lsp')
+      new_config.cmd = { 'clojure-lsp' }
     end
   end,
   cmd = {},
