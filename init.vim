@@ -18,18 +18,28 @@ Plug 'tpope/vim-surround'
 Plug 'airblade/vim-gitgutter'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'dense-analysis/ale'
+
 Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/rainbow_parentheses.vim'
 
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'deoplete-plugins/deoplete-lsp'
-Plug 'fszymanski/deoplete-emoji'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/cmp-nvim-lua'
+Plug 'hrsh7th/cmp-emoji'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
+
 
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
+Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+
 Plug 'Lokaltog/vim-easymotion'
+
 Plug 'junegunn/vim-emoji'
 Plug 'cespare/vim-toml', { 'branch': 'main' }
 
@@ -47,9 +57,6 @@ Plug 'mattn/emmet-vim'
 Plug 'guns/vim-sexp'
 Plug 'tpope/vim-sexp-mappings-for-regular-people'
 Plug 'liquidz/vim-iced', {'for': 'clojure'}
-" Plug 'clojure-vim/async-clj-omni'
-Plug 'prabirshrestha/asyncomplete.vim'
-Plug 'liquidz/vim-iced-asyncomplete', {'for': 'clojure'}
 
 "
 Plug 'neovim/nvim-lspconfig'
@@ -120,18 +127,7 @@ nmap <Leader>c :Commits<CR>
 
 let g:python3_host_prog = '/usr/bin/python3'
 
-let g:deoplete#enable_at_startup = 1
-" let g:deoplete#max_abbr_width = 0
-" let g:deoplete#max_menu_width = 0
-" let g:deoplete#omni#input_patterns = get(g:,’deoplete#omni#input_patterns’,{})
-call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
-call deoplete#custom#option({
-			\ 'camel_case': v:true,
-			\ 'refresh_always': v:true,
-			\ 'auto_refresh_delay': 40,
-			\ 'ignore_case': v:true,
-			\ 'smart_case': v:true,
-			\})
+set completeopt=menu,menuone,noselect
 
 
 " Go see https://github.com/scrooloose/snipmate-snippets
@@ -146,7 +142,6 @@ set completefunc=emoji#complete
 syntax sync minlines=200
 syntax sync maxlines=500
 
-call deoplete#custom#source('emoji', 'converters', ['converter_emoji'])
 
 " --column: Show column number
 " --line-number: Show line number
