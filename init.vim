@@ -17,12 +17,12 @@ Plug 'tpope/vim-vividchalk'
 Plug 'tpope/vim-surround'
 Plug 'airblade/vim-gitgutter'
 Plug 'ntpeters/vim-better-whitespace'
+Plug 'junegunn/rainbow_parentheses.vim'
+
 Plug 'dense-analysis/ale'
 
-Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'junegunn/rainbow_parentheses.vim'
 
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
@@ -32,7 +32,10 @@ Plug 'hrsh7th/cmp-nvim-lua'
 Plug 'hrsh7th/cmp-emoji'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
+Plug 'onsails/lspkind.nvim'
+Plug 'lukas-reineke/cmp-rg'
 
+Plug 'liuchengxu/vim-which-key'
 
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
@@ -117,11 +120,11 @@ nmap <silent> <F7> :NERDTreeToggle<CR>
 let g:NERDTreeChDirMode = 2
 
 "Fzf
-set rtp+=~/dev/fzf
+" set rtp+=~/dev/fzf
 " fzf options
 
 nmap <Leader>b :Buffers<CR>
-nmap <c-f> :Files<CR>
+nmap <c-f> :GFiles<CR>
 nmap <Leader>t :Tags<CR>
 nmap <Leader>c :Commits<CR>
 
@@ -155,10 +158,10 @@ syntax sync maxlines=500
 " --color: Search color options
 "
 
-command! -bang -nargs=* Find
-            \ call fzf#vim#grep(
-            \ 'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1,
-            \ <bang>0)
+" command! -bang -nargs=* Find
+"             \ call fzf#vim#grep(
+"             \ 'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1,
+"             \ <bang>0)
 
 let g:rainbow#max_level = 16
 let g:rainbow#pairs = [['(', ')'], ['[', ']'], ['{', '}']]
@@ -194,8 +197,6 @@ command! PrettyPrintJSON %!python -m json.tool
 command! PrettyPrintHTML !tidy -mi -html -wrap 0 %
 command! PrettyPrintXML !tidy -mi -xml -wrap 0 %
 
-" set grepprg=ag\ --nogroup
-"
 set grepprg=rg\ --vimgrep\ --no-heading
 set grepformat=%f:%l:%c:%m,%f:%l:%m
 nnoremap <Leader>f :grep! "<C-R><C-W>"<CR>:cw<CR><CR>
