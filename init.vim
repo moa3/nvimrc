@@ -65,8 +65,6 @@ Plug 'liquidz/vim-iced', {'for': 'clojure'}
 Plug 'neovim/nvim-lspconfig'
 " Plug 'lspcontainers/lspcontainers.nvim'
 
-
-
 Plug 'sirtaj/vim-openscad'
 
 " Initialize plugin system

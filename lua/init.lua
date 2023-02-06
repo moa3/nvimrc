@@ -45,37 +45,60 @@ local lsp_flags = {
 local lspconfig = require'lspconfig'
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-lspconfig.clojure_lsp.setup{
-  before_init = function(params)
-    params.processId = vim.NIL
-  end,
-  on_attach = on_attach,
-  capabilities = capabilities,
-  flags = lsp_flags,
-  -- Try and launch the lsp server from a .lsp_runner executable file in the
-  -- root dir of the project. Useful if the LSP server lives in a container.
-  -- Exemple .lsp_runner file:
-  --
-  -- #!/usr/bin/env bash
+local merge_conf = function(my_conf)
+  -- Sensible defaults
+  local default_conf = {
+    before_init = function(params)
+      params.processId = vim.NIL
+    end,
+    on_attach = on_attach,
+    capabilities = capabilities,
+    flags = lsp_flags,
+    -- Try and launch the lsp server from a .lsp_runner executable file in the
+    -- root dir of the project. Useful if the LSP server lives in a container.
+    -- Exemple .lsp_runner file:
+    --
+    -- #!/usr/bin/env bash
 
-  -- exec docker-compose exec -i <my_clj_container> clojure-lsp "$@"
+    -- exec docker-compose exec -i <my_lsp_container> <lsp-binary> "$@"
+    on_new_config= function (new_config, new_root_dir)
+      local bin = lspconfig.util.path.join(new_root_dir, '.lsp_runner')
+      if lspconfig.util.path.is_file(bin) then
+        new_config.cmd = { bin }
+      else
+        require('vim.lsp.log').warn(string.format(
+        '%s file was not found in root dir. Using default cmd if available',
+        bin))
+      end
+    end,
+    root_dir = lspconfig.util.root_pattern(".git")
+  }
 
-  on_new_config=function (new_config, new_root_dir)
-    local bin = lspconfig.util.path.join(new_root_dir, '.lsp_runner')
-    if lspconfig.util.path.is_file(bin) then
-      new_config.cmd = { bin }
-    else
-      require('vim.lsp.log').warn(string.format(
-      '%s file was not found in root dir. Using default clojure-lsp bin if available',
-      bin))
-      new_config.cmd = { 'clojure-lsp' }
-    end
-  end,
-  cmd = {},
+  for key,value in pairs(my_conf) do
+    default_conf[key] = value
+  end
+  return default_conf
+end
+
+lspconfig.clojure_lsp.setup(
+merge_conf({
+  cmd = { 'clojure-lsp' },
   filetypes = { "clojure", "edn" },
   root_dir = lspconfig.util.root_pattern("project.clj", "deps.edn", "build.boot", "shadow-cljs.edn", ".git")
-}
+}))
 
+lspconfig.solargraph.setup(
+merge_conf({
+  cmd = { 'solargraph' },
+  filetypes = { "ruby" },
+  init_options = { formatting = true },
+  root_dir = lspconfig.util.root_pattern("Gemfile", ".git"),
+  settings = {
+    solargraph = {
+      diagnostics = true
+    }
+  }
+}))
 
 -- nvim-cmp
 
@@ -107,10 +130,22 @@ cmp.setup({
     { name = 'ultisnips' },
     { name = 'nvim_lua' },
     { name = 'emoji' },
+    -- { name = 'rg' },
   }, {
     { name = 'buffer' },
     { name = 'nvim_lsp_signature_help' },
-  })
+  }),
+  formatting = {
+    format = require('lspkind').cmp_format({
+      mode = "symbol_text",
+      menu = ({
+        buffer = "[Buffer]",
+        nvim_lsp = "[LSP]",
+        ultisnips = "[Snip]",
+        nvim_lua = "[Lua]",
+      })
+    }),
+  }
 })
 
 cmp.setup.cmdline('/', {
